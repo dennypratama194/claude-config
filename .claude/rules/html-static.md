@@ -1,7 +1,6 @@
 ---
 paths:
   - "**/*.html"
-  - "**/*.css"
   - "**/assets/css/**"
   - "**/assets/js/**"
 ---

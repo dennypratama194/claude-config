@@ -3,6 +3,12 @@ paths:
   - "**/figma/**"
   - "**/design/**"
   - "**/mockup/**"
+  - "src/components/**"
+  - "src/sections/**"
+  - "src/app/**"
+  - "components/**"
+  - "sections/**"
+  - "app/**"
 ---
 
 # Figma-to-Code Rules

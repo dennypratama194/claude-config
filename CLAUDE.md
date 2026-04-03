@@ -25,6 +25,13 @@ Staging: [URL]
 - [e.g. No copy changes. No section removals. Improve only.]
 - [e.g. No new npm packages without asking]
 
+## Do Not Touch
+<!-- Absolute blocklist. Claude must flag, not act. -->
+- Copy (text content) — never rewrite, rephrase, or shorten
+- Section order — never remove or reorder sections
+- [e.g. The hero video — client-supplied, do not replace]
+- [e.g. nav structure — tied to CMS]
+
 ## Key Folders
 <!-- Only list what's non-obvious -->
 - [e.g. /assets/css/style.css — main stylesheet]

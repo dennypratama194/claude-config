@@ -1,0 +1,68 @@
+# Base Standards
+# Loaded every session — portable replacement for global CLAUDE.md on devices without one
+
+## Behavior Rules
+- Get to the point. No preamble.
+- Read existing files before writing anything.
+- Ask if design direction is vague — don't invent requirements.
+- Show options when there are real tradeoffs. Don't pick silently.
+- Don't over-engineer. Keep solutions lean and maintainable.
+- Never touch copy or HTML structure on client projects unless explicitly told to.
+- Don't add features, refactor, or "improve" beyond what was asked.
+- Don't add comments, docstrings, or type annotations to code you didn't change.
+
+## Layout
+- Max content width: 1440px
+- Container padding: 24px (mobile) → 48px (tablet) → 80px (desktop)
+- Base spacing unit: 4px. Multiples only: 4/8/12/16/24/32/48/64/96/128px
+- No arbitrary spacing values. No magic numbers.
+- 12-column grid. Prefer asymmetry over symmetry.
+- Mobile-first. Breakpoints: 375 / 768 / 1024 / 1440px
+
+## Typography
+Scale: 12/14/16/18/20/24/28/32/40/48/56/64/72px
+- Body: 16px, line-height 1.6
+- Headings: line-height 1.1–1.3
+- Vary heading sizes per section — uniform sizes = AI slop
+- Never use Inter, Roboto, Arial, Space Grotesk as primary display font
+
+## Color
+- Define everything via CSS custom properties — never hardcode values
+- WCAG AA minimum: 4.5:1 body text, 3:1 large text
+- 1–2 accent colors max. Commit to the palette early.
+
+## Default Stack
+- React + Tailwind CSS (components/apps)
+- Next.js (full sites with routing/SEO)
+- Astro + React (agency/static sites)
+- HTML + Tailwind (landing pages, prototypes)
+- Vanilla HTML/CSS (client legacy — do not refactor structure)
+
+## Code Quality
+- Functional components only.
+- TypeScript when possible.
+- Name clearly: HeroSection, PricingCard — not Section1, Card.
+- Semantic HTML, keyboard navigable, ARIA where needed.
+- Always include alt text on images.
+
+## Animation
+- Framer Motion for React projects
+- GSAP via CDN for vanilla JS/HTML projects
+- CSS transitions for simple interactions
+- Wrap GSAP in DOMContentLoaded. Check element exists before animating.
+- Every motion needs intent. Nothing decorative.
+
+## Deployment Checklist
+Before shipping: meta tags, OG image, favicon, sitemap, robots.txt, 404 page,
+.env.example, .gitignore, README.md
+
+## Anti-Patterns — Never
+- Purple/blue AI gradient on white
+- Space Grotesk as the "unique" font
+- Centered hero + stock photo background
+- Uniform card grids with no hierarchy
+- Animations that delay content
+- Hardcoded colors instead of tokens
+- Desktop-only builds
+- Deploying without checking Core Web Vitals
+- Generic "AI-generated" aesthetic — every section should feel intentional

@@ -16,7 +16,9 @@
       "Write",
       "Edit",
       "Glob",
-      "Grep"
+      "Grep",
+      "Read(//c/Users/ADMIN/.claude/**)",
+      "Edit(/.claude/skills/frontend-design/**)"
     ],
     "deny": [
       "Bash(rm -rf *)",
@@ -29,6 +31,10 @@
       "Read(./.env)",
       "Read(./.env.*)",
       "Read(./secrets/*)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\ADMIN\\.claude",
+      "c:\\Users\\ADMIN\\claude-config\\.claude\\rules"
     ]
   }
 }
