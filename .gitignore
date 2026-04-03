@@ -1,0 +1,7 @@
+# Claude personal overrides — never commit these
+CLAUDE.local.md
+.claude/settings.local.json
+
+# OS
+.DS_Store
+Thumbs.db
