@@ -5,14 +5,14 @@
 Staging: [URL]
 
 ## Stack
-<!-- Pick one, delete the rest -->
+<!-- Pick one, delete the rest. Run /stack-select to auto-clean. -->
 - Vanilla HTML / CSS / JavaScript
 - Astro + CSS
 - React + Tailwind CSS
 - WordPress (theme: [theme name])
 
 ## Style Reference
-<!-- The file Claude must read FIRST before touching anything -->
+<!-- Keep only the line that matches your chosen stack. Delete the rest. -->
 - Vanilla HTML: index.html
 - Astro: src/layouts/Layout.astro
 - React: src/components/Layout.tsx
