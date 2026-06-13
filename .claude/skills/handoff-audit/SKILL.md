@@ -1,7 +1,9 @@
 # Skill: handoff-audit
 # Trigger: /handoff-audit
 
-Full pre-delivery audit using 14 parallel specialist agents (2 per section × 7 sections) with cross-checking, followed by a dedicated reconciler that consolidates all findings into a single report.
+Full pre-delivery audit using 18 parallel specialist agents with cross-checking, followed by a dedicated reconciler that consolidates all findings into a single report.
+
+Sections: Code Quality, SEO, Performance, Accessibility, Security (3 pairs), Mobile & Responsive, Deployment Readiness.
 
 **All agents are read-only. Zero changes made to the codebase.**
 
@@ -10,38 +12,35 @@ Full pre-delivery audit using 14 parallel specialist agents (2 per section × 7 
 ## How It Works
 
 1. **Discovery** — You (the orchestrator) read the project root, `package.json`, and main entry files to identify the stack and key paths.
-2. **Specialist Agents** — Spawn all 14 agents simultaneously in one parallel message. Each agent checks specific items from a focused angle using grep/read on actual files.
-3. **Reconciliation** — Once all 14 agents return, spawn one final reconciler agent that reads every report and produces the consolidated output.
+2. **Specialist Agents** — Spawn all 18 agents simultaneously in one parallel message. Each agent checks specific items from a focused angle using grep/read on actual files.
+3. **Reconciliation** — Once all 18 agents return, spawn one final reconciler agent that reads every report and produces the consolidated output.
 
 ## Hybrid Coverage Model
 
-Each section's two agents share a small set of **high-stakes checks** and split the rest:
+Each section's agent pairs share a small set of **high-stakes checks** and split the rest:
 
-- **`[SHARED]` checks** appear in *both* agents' checklists. Each agent verifies them independently, without knowing the other's result. The reconciler cross-validates: agreement confirms the finding, disagreement is surfaced as disputed. These are the checks where a false "pass" hurts most at handoff.
-- **Solo checks** appear in only one agent's checklist, for breadth. They are reported as-is.
+- **`[SHARED]` checks** appear in *both* agents in a pair. Each verifies independently without knowing the other's result. The reconciler cross-validates: agreement confirms the finding, disagreement is surfaced as disputed. These are the checks where a false "pass" hurts most.
+- **Solo checks** appear in only one agent's checklist, for breadth. Reported as-is.
 
-Agents must not skip a `[SHARED]` check on the assumption their counterpart covers it — independent double verification is the point.
+Agents must never skip a `[SHARED]` check — independent double verification is the point.
 
 ---
 
 ## Agent Report Format
 
-Every specialist agent must return findings in this exact structure:
-
 ```
 SECTION: [section name]
 ROLE: [agent role]
 
-CHECK [SHARED]: [item description]   ← keep the [SHARED] tag in the report
+CHECK [SHARED]: [item]
 STATUS: PASS | FAIL | WARN | SKIP
-DETAIL: [file:line if failing — omit line if PASS]
+DETAIL: [file:line if failing — omit if PASS]
 
-CHECK: [solo item description]
+CHECK: [solo item]
 STATUS: ...
 DETAIL: ...
 ```
 
-Status meanings:
 - `PASS` — confirmed good from reading actual files
 - `FAIL` — confirmed failing, include file:line where applicable
 - `WARN` — present but incomplete, uncertain, or could not fully verify
@@ -66,7 +65,7 @@ Use the discovered `[PROJECT_PATH]` and `[STACK]` in every agent prompt below.
 
 ## Phase 2: Specialist Agents
 
-Spawn all 14 agents in a single parallel message using the Agent tool. Substitute `[PROJECT_PATH]` and `[STACK]` with actual values from Phase 1.
+Spawn all 18 agents in a single parallel message using the Agent tool. Substitute `[PROJECT_PATH]` and `[STACK]` with actual values from Phase 1.
 
 ---
 
@@ -74,7 +73,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 
 > Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
 >
-> You are the Structure Inspector for Code Quality. Use grep and file reads to check the actual source files. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
+> You are the Structure Inspector for Code Quality. Use grep and file reads to check actual source files. Verify every check yourself, including [SHARED] ones.
 >
 > SECTION: Code Quality
 > ROLE: Structure Inspector
@@ -87,7 +86,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 > CHECK: No commented-out code blocks (3 or more consecutive commented lines)
 > CHECK: Component and file names are semantic — no Section1, Card2, temp, test, copy, final, final2, new, untitled
 >
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+> Report using the structured format above, keeping [SHARED] tags.
 
 ---
 
@@ -95,7 +94,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 
 > Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
 >
-> You are the Standards Inspector for Code Quality. Use grep and file reads to check the actual source files. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
+> You are the Standards Inspector for Code Quality. Use grep and file reads to check actual source files. Verify every check yourself, including [SHARED] ones.
 >
 > SECTION: Code Quality
 > ROLE: Standards Inspector
@@ -104,11 +103,11 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 > CHECK [SHARED]: No secrets, API keys, or tokens hardcoded in source — env vars used instead
 > CHECK [SHARED]: `.env` is not committed; `.env.example` is committed with placeholder values only
 > CHECK: No hardcoded color values (hex/rgb/hsl literals) outside of CSS custom property definitions
-> CHECK: No magic numbers used directly in layout, timing, or spacing (unnamed numeric literals)
+> CHECK: No magic numbers used directly in layout, timing, or spacing
 > CHECK: No inline styles overriding design tokens
 > CHECK: No TypeScript `any` types without a suppression comment and justification
 >
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+> Report using the structured format above, keeping [SHARED] tags.
 
 ---
 
@@ -116,7 +115,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 
 > Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
 >
-> You are the Technical SEO Inspector. Check HTML templates, config files, and the public directory. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
+> You are the Technical SEO Inspector. Check HTML templates, config files, and the public directory. Verify every check yourself, including [SHARED] ones.
 >
 > SECTION: SEO
 > ROLE: Technical Inspector
@@ -130,7 +129,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 > CHECK: `og:image` is referenced as an absolute URL (not a relative path)
 > CHECK: Structured data / JSON-LD present where applicable (Organisation, Article, Product, BreadcrumbList)
 >
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+> Report using the structured format above, keeping [SHARED] tags.
 
 ---
 
@@ -138,7 +137,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 
 > Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
 >
-> You are the Content SEO Inspector. Check page and template files. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
+> You are the Content SEO Inspector. Check page and template files. Verify every check yourself, including [SHARED] ones.
 >
 > SECTION: SEO
 > ROLE: Content Inspector
@@ -151,7 +150,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 > CHECK: Heading hierarchy is correct: exactly one `<h1>` per page, logical h2 → h3 nesting
 > CHECK: No obviously broken internal links (href="#", href="", empty href, placeholder links)
 >
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+> Report using the structured format above, keeping [SHARED] tags.
 
 ---
 
@@ -159,7 +158,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 
 > Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
 >
-> You are the Asset Inspector for Performance. Check source files, stylesheets, and the assets/public directory. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
+> You are the Asset Inspector for Performance. Check source files, stylesheets, and the assets/public directory. Verify every check yourself, including [SHARED] ones.
 >
 > SECTION: Performance
 > ROLE: Asset Inspector
@@ -172,7 +171,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 > CHECK: Critical above-fold fonts are preloaded with `<link rel="preload">`
 > CHECK: No obviously unused CSS rules or dead style blocks in stylesheets
 >
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+> Report using the structured format above, keeping [SHARED] tags.
 
 ---
 
@@ -180,7 +179,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 
 > Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
 >
-> You are the Load Inspector for Performance. Check HTML files, component files, and package.json. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
+> You are the Load Inspector for Performance. Check HTML files, component files, and package.json. Verify every check yourself, including [SHARED] ones.
 >
 > SECTION: Performance
 > ROLE: Load Inspector
@@ -193,7 +192,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 > CHECK: No unnecessary polyfills for browsers that are not being targeted
 > CHECK: Build config targets production mode — no dev-only bundles, source maps, or verbose logging shipped
 >
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+> Report using the structured format above, keeping [SHARED] tags.
 
 ---
 
@@ -201,7 +200,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 
 > Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
 >
-> You are the Semantics Inspector for Accessibility. Check HTML and component source files. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
+> You are the Semantics Inspector for Accessibility. Check HTML and component source files. Verify every check yourself, including [SHARED] ones.
 >
 > SECTION: Accessibility
 > ROLE: Semantics Inspector
@@ -215,7 +214,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 > CHECK: Semantic HTML used where appropriate: `<nav>`, `<main>`, `<footer>`, `<header>`, `<article>`, `<section>`
 > CHECK: No `role` attributes that unnecessarily override native HTML semantics
 >
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+> Report using the structured format above, keeping [SHARED] tags.
 
 ---
 
@@ -223,7 +222,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 
 > Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
 >
-> You are the Visual & Interaction Inspector for Accessibility. Check CSS files and component source. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
+> You are the Visual & Interaction Inspector for Accessibility. Check CSS files and component source. Verify every check yourself, including [SHARED] ones.
 >
 > SECTION: Accessibility
 > ROLE: Visual & Interaction Inspector
@@ -236,47 +235,143 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 > CHECK: No `tabindex` values greater than 0 (breaks natural tab order)
 > CHECK: Motion/animation respects `prefers-reduced-motion` media query
 >
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+> Report using the structured format above, keeping [SHARED] tags.
 
 ---
 
-### 5A — Security: Secrets & Dependencies Inspector
+## Security — Three Agent Pairs
 
-> Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
->
-> You are the Secrets & Dependencies Inspector for Security. Use grep to scan source files. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
->
-> SECTION: Security
-> ROLE: Secrets & Dependencies Inspector
->
-> CHECK [SHARED]: No secrets, API keys, tokens, or passwords in committed source files — grep for patterns: `sk-`, `key=`, `secret=`, `password=`, `token=`, `_KEY`, `_SECRET`, `_TOKEN`, `AUTH_`
-> CHECK [SHARED]: Any use of `dangerouslySetInnerHTML` (React) or direct `innerHTML` assignment only uses sanitized or trusted content
-> CHECK: `.env` file not committed — check .gitignore and confirm it lists .env
-> CHECK: No npm scripts with `--legacy-peer-deps` or `--force` that mask dependency issues
-> CHECK: Third-party scripts loaded only from official/known CDN domains
-> CHECK: No `npm audit` high/critical findings visible in package-lock.json metadata (check for known vulnerability patterns)
->
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+Security gets three dedicated agent pairs covering injection, data exposure, and auth/config. Each pair cross-verifies its own shared checks independently.
 
 ---
 
-### 5B — Security: Input & Output Inspector
+### 5A — Security: Injection Inspector
 
 > Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
 >
-> You are the Input & Output Inspector for Security. Check component and utility source files. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
+> You are the Injection Inspector for Security. Think like a penetration tester doing static code analysis. Use grep extensively to find dangerous patterns. Verify every check yourself, including [SHARED] ones.
 >
 > SECTION: Security
-> ROLE: Input & Output Inspector
+> ROLE: Injection Inspector
 >
-> CHECK [SHARED]: No secrets, API keys, tokens, or passwords in committed source files — grep for patterns: `sk-`, `key=`, `secret=`, `password=`, `token=`, `_KEY`, `_SECRET`, `_TOKEN`, `AUTH_`
-> CHECK [SHARED]: Any use of `dangerouslySetInnerHTML` (React) or direct `innerHTML` assignment only uses sanitized or trusted content
-> CHECK: User-supplied input (forms, URL params, query strings) is validated before use
+> CHECK [SHARED]: No `dangerouslySetInnerHTML`, `innerHTML`, `outerHTML`, or `document.write` used with unsanitized user-controlled data
+> CHECK [SHARED]: No `eval()`, `new Function()`, `setTimeout(string)`, or `setInterval(string)` with user-controlled input
+> CHECK [SHARED]: User-supplied input (forms, URL params, query strings, route params) is validated and sanitized before use
+> CHECK: No SQL injection risk — no string concatenation or template literals used to build database queries with user input (parameterized queries or ORM used instead)
+> CHECK: No command injection risk — no `child_process.exec()` or `execSync()` with user-controlled arguments (use `execFile` or `spawn` with argument arrays)
+> CHECK: No path traversal risk — user-controlled values not used directly in file path operations without normalization (`path.resolve`, `path.normalize`, allowlist validation)
+> CHECK: No prototype pollution risk — `Object.assign()`, `_.merge()`, `JSON.parse()` results, or spread operators not applied to user-controlled keys without sanitization
+>
+> Report using the structured format above, keeping [SHARED] tags.
+
+---
+
+### 5B — Security: XSS & Input Inspector
+
+> Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
+>
+> You are the XSS & Input Inspector for Security. Think like a penetration tester doing static code analysis. Use grep extensively to find dangerous patterns. Verify every check yourself, including [SHARED] ones.
+>
+> SECTION: Security
+> ROLE: XSS & Input Inspector
+>
+> CHECK [SHARED]: No `dangerouslySetInnerHTML`, `innerHTML`, `outerHTML`, or `document.write` used with unsanitized user-controlled data
+> CHECK [SHARED]: No `eval()`, `new Function()`, `setTimeout(string)`, or `setInterval(string)` with user-controlled input
+> CHECK [SHARED]: User-supplied input (forms, URL params, query strings, route params) is validated and sanitized before use
+> CHECK: No open redirect risk — redirects using user-controlled destination URLs are validated against an allowlist
+> CHECK: No ReDoS risk — complex nested or backtracking regex patterns (`(a+)+`, `(.+)*`, `(a|aa)+`) not applied to user-controlled input
 > CHECK: All external links use `rel="noopener noreferrer"`
 > CHECK: No mixed content — no HTTP asset URLs on what will be an HTTPS site
-> CHECK: No `eval()`, `new Function()`, or dynamic code execution patterns with user-controlled input
+> CHECK: No server-side template injection — user input not directly interpolated into template strings that are evaluated server-side
 >
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+> Report using the structured format above, keeping [SHARED] tags.
+
+---
+
+### 5C — Security: Secrets & Data Exposure Inspector
+
+> Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
+>
+> You are the Secrets & Data Exposure Inspector for Security. Think like a penetration tester reviewing source for sensitive data leaks. Use grep extensively. Verify every check yourself, including [SHARED] ones.
+>
+> SECTION: Security
+> ROLE: Secrets & Data Exposure Inspector
+>
+> CHECK [SHARED]: No API keys, tokens, passwords, or credentials in committed source files — grep for: `sk-`, `pk-`, `key=`, `secret=`, `password=`, `token=`, `_KEY`, `_SECRET`, `_TOKEN`, `AUTH_`, `Bearer `, `api_key`, `apikey`, `client_secret`
+> CHECK [SHARED]: No sensitive data stored in `localStorage` or `sessionStorage` — tokens, passwords, or PII must not be persisted in browser storage
+> CHECK [SHARED]: No stack traces, internal file paths, DB schema details, or technology version strings exposed to the client in error handling code
+> CHECK: `.env` not committed — confirm it is listed in `.gitignore`; `.env.example` exists with placeholder values
+> CHECK: No PII logged via `console.log` or logging libraries — email addresses, phone numbers, SSNs, credit card numbers must not appear in log calls
+> CHECK: No sensitive data in URL parameters — passwords, tokens, or session IDs must not be passed as GET parameters
+> CHECK: No internal IP addresses, server hostnames, or database connection strings present in client-side code
+>
+> Report using the structured format above, keeping [SHARED] tags.
+
+---
+
+### 5D — Security: Information Disclosure Inspector
+
+> Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
+>
+> You are the Information Disclosure Inspector for Security. Think like a penetration tester looking for what an attacker could learn from the codebase. Use grep extensively. Verify every check yourself, including [SHARED] ones.
+>
+> SECTION: Security
+> ROLE: Information Disclosure Inspector
+>
+> CHECK [SHARED]: No API keys, tokens, passwords, or credentials in committed source files — grep for: `sk-`, `pk-`, `key=`, `secret=`, `password=`, `token=`, `_KEY`, `_SECRET`, `_TOKEN`, `AUTH_`, `Bearer `, `api_key`, `apikey`, `client_secret`
+> CHECK [SHARED]: No sensitive data stored in `localStorage` or `sessionStorage` — tokens, passwords, or PII must not be persisted in browser storage
+> CHECK [SHARED]: No stack traces, internal file paths, DB schema details, or technology version strings exposed to the client in error handling code
+> CHECK: Error messages shown to users are generic — not revealing database structure, file system paths, or framework internals
+> CHECK: No commented-out code containing credentials, internal URLs, debug tokens, or admin paths
+> CHECK: Source maps (`.map` files) are not shipped to production — they expose original source code
+> CHECK: No debug endpoints, test routes, or admin panels accessible without authentication (check route definitions)
+> CHECK: `package.json` or `package-lock.json` not publicly accessible at a URL that exposes full dependency list and versions
+>
+> Report using the structured format above, keeping [SHARED] tags.
+
+---
+
+### 5E — Security: Authentication & Session Inspector
+
+> Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
+>
+> You are the Authentication & Session Inspector for Security. Think like a penetration tester reviewing auth flows for weaknesses. Use grep and file reads on route handlers, middleware, and auth utilities. Verify every check yourself, including [SHARED] ones.
+>
+> SECTION: Security
+> ROLE: Authentication & Session Inspector
+>
+> CHECK [SHARED]: CORS not configured with wildcard `*` for credentialed requests — check API route config, `cors()` middleware, and framework CORS settings
+> CHECK [SHARED]: JWT usage is secure — no `alg: "none"` accepted, expiry (`exp`) is set, secrets are not hardcoded and are sufficiently long
+> CHECK [SHARED]: CSRF protection present on all state-changing forms and API endpoints — check for CSRF tokens, `SameSite` cookie attributes, or framework-level CSRF middleware
+> CHECK: Authentication checks are enforced server-side, not client-side only — no auth logic that only hides UI without a server gate
+> CHECK: Session tokens and auth cookies stored with `httpOnly` and `Secure` flags — not stored in `localStorage`
+> CHECK: Password hashing uses a strong algorithm — bcrypt, argon2, or scrypt — not MD5, SHA1, plain SHA256, or unsalted hashes
+> CHECK: No IDOR risk — sequential or predictable resource IDs (1, 2, 3...) are validated for ownership server-side before returning data
+> CHECK: `Math.random()` not used for security-sensitive operations (tokens, OTPs, nonces) — use `crypto.randomBytes` or `crypto.randomUUID`
+>
+> Report using the structured format above, keeping [SHARED] tags.
+
+---
+
+### 5F — Security: Headers & Config Inspector
+
+> Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
+>
+> You are the Headers & Config Inspector for Security. Think like a penetration tester checking for misconfiguration. Check `next.config.js`, `vercel.json`, `netlify.toml`, `.htaccess`, server middleware, and HTML meta tags. Verify every check yourself, including [SHARED] ones.
+>
+> SECTION: Security
+> ROLE: Headers & Config Inspector
+>
+> CHECK [SHARED]: CORS not configured with wildcard `*` for credentialed requests — check API route config, `cors()` middleware, and framework CORS settings
+> CHECK [SHARED]: JWT usage is secure — no `alg: "none"` accepted, expiry (`exp`) is set, secrets are not hardcoded and are sufficiently long
+> CHECK [SHARED]: CSRF protection present on all state-changing forms and API endpoints — check for CSRF tokens, `SameSite` cookie attributes, or framework-level CSRF middleware
+> CHECK: Security headers configured: `Content-Security-Policy`, `X-Frame-Options` (or `frame-ancestors` in CSP), `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, `Referrer-Policy`
+> CHECK: `Content-Security-Policy` does not use `unsafe-inline` or `unsafe-eval` unless absolutely necessary and documented
+> CHECK: External scripts loaded with Subresource Integrity (`integrity` + `crossorigin` attributes) where possible
+> CHECK: No `npm audit` high or critical vulnerabilities — check `package-lock.json` for known vulnerable versions
+> CHECK: No `--legacy-peer-deps` or `--force` flags in npm scripts that suppress dependency conflict errors
+>
+> Report using the structured format above, keeping [SHARED] tags.
 
 ---
 
@@ -284,19 +379,19 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 
 > Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
 >
-> You are the Layout Inspector for Mobile & Responsive. Check HTML templates and CSS/Tailwind files. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
+> You are the Layout Inspector for Mobile & Responsive. Check HTML templates and CSS/Tailwind files. Verify every check yourself, including [SHARED] ones.
 >
 > SECTION: Mobile & Responsive
 > ROLE: Layout Inspector
 >
-> CHECK [SHARED]: Viewport meta tag is present and correct: `<meta name="viewport" content="width=device-width, initial-scale=1">` — and does NOT include user-scalable=no or maximum-scale=1
+> CHECK [SHARED]: Viewport meta tag is present and correct: `<meta name="viewport" content="width=device-width, initial-scale=1">` — and does NOT include `user-scalable=no` or `maximum-scale=1`
 > CHECK [SHARED]: No horizontal overflow on narrow screens — no fixed pixel widths on layout containers, no content wider than viewport, no `overflow-x: hidden` used as a band-aid
 > CHECK [SHARED]: All interactive elements (buttons, links, inputs) have a minimum 44×44px touch target size
 > CHECK: Media queries or responsive utilities cover all target breakpoints: 375px, 768px, 1024px, 1440px
-> CHECK: Images are responsive — use `max-width: 100%`, `width: 100%`, or equivalent — no fixed-width images that break mobile
+> CHECK: Images are responsive — `max-width: 100%`, `width: 100%`, or equivalent — no fixed-width images that break mobile
 > CHECK: Flexbox/Grid layouts have appropriate `flex-wrap`, `grid-template-columns`, or collapse rules for narrow viewports
 >
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+> Report using the structured format above, keeping [SHARED] tags.
 
 ---
 
@@ -304,12 +399,12 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 
 > Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
 >
-> You are the Interaction Inspector for Mobile & Responsive. Check CSS and component files for mobile interaction patterns. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
+> You are the Interaction Inspector for Mobile & Responsive. Check CSS and component files for mobile interaction patterns. Verify every check yourself, including [SHARED] ones.
 >
 > SECTION: Mobile & Responsive
 > ROLE: Interaction Inspector
 >
-> CHECK [SHARED]: Viewport meta tag is present and correct: `<meta name="viewport" content="width=device-width, initial-scale=1">` — and does NOT include user-scalable=no or maximum-scale=1
+> CHECK [SHARED]: Viewport meta tag is present and correct: `<meta name="viewport" content="width=device-width, initial-scale=1">` — and does NOT include `user-scalable=no` or `maximum-scale=1`
 > CHECK [SHARED]: No horizontal overflow on narrow screens — no fixed pixel widths on layout containers, no content wider than viewport, no `overflow-x: hidden` used as a band-aid
 > CHECK [SHARED]: All interactive elements (buttons, links, inputs) have a minimum 44×44px touch target size
 > CHECK: Sufficient spacing between adjacent tap targets — minimum 8px gap between clickable elements
@@ -317,7 +412,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 > CHECK: Navigation is functional on mobile (hamburger menu, bottom nav, drawer, or equivalent — not a desktop-only nav bar)
 > CHECK: No hover-only interactive states with no touch or focus equivalent
 >
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+> Report using the structured format above, keeping [SHARED] tags.
 
 ---
 
@@ -325,7 +420,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 
 > Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
 >
-> You are the File Completeness Inspector for Deployment Readiness. Check the project root, public directory, and output config. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
+> You are the File Completeness Inspector for Deployment Readiness. Check the project root, public directory, and output config. Verify every check yourself, including [SHARED] ones.
 >
 > SECTION: Deployment Readiness
 > ROLE: File Completeness Inspector
@@ -338,7 +433,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 > CHECK: `.gitignore` covers: node_modules/, dist/, .env, build artifacts, .DS_Store, *.log
 > CHECK: `robots.txt` and `sitemap.xml` are present in the public or output directory
 >
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+> Report using the structured format above, keeping [SHARED] tags.
 
 ---
 
@@ -346,7 +441,7 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 
 > Read-only audit. Project: [PROJECT_PATH]. Stack: [STACK].
 >
-> You are the Content Hygiene Inspector for Deployment Readiness. Grep across all source files. Verify every check yourself, including [SHARED] ones — do not assume another agent covers them.
+> You are the Content Hygiene Inspector for Deployment Readiness. Grep across all source files. Verify every check yourself, including [SHARED] ones.
 >
 > SECTION: Deployment Readiness
 > ROLE: Content Hygiene Inspector
@@ -359,69 +454,65 @@ Spawn all 14 agents in a single parallel message using the Agent tool. Substitut
 > CHECK: No placeholder images from picsum.photos, placehold.co, via.placeholder.com, lorempixel.com
 > CHECK: All `<title>`, `<meta description>`, and OG content is real — not template placeholder text
 >
-> For each check, report using the structured format, keeping the [SHARED] tag where present.
+> Report using the structured format above, keeping [SHARED] tags.
 
 ---
 
 ## Phase 3: Reconciler Agent
 
-After all 14 agents have returned, spawn one final reconciler agent. Inject all 14 reports into its prompt verbatim.
+After all 18 agents have returned, spawn one final reconciler agent. Inject all 18 reports into its prompt verbatim.
 
 **Reconciler prompt:**
 
-> You are the Reconciler for a full handoff audit. You have received 14 specialist agent reports below (2 per section × 7 sections).
+> You are the Reconciler for a full handoff audit. You have received 18 specialist agent reports below.
 > Your job is to reconcile findings and produce the final audit report.
 >
-> [INSERT ALL 14 AGENT REPORTS HERE VERBATIM]
+> [INSERT ALL 18 AGENT REPORTS HERE VERBATIM]
 >
 > ## Reconciliation Rules
 >
-> **Shared checks** are tagged `[SHARED]` and appear in both agents' reports for a section. Match them by tag and description, then apply this table:
+> **Shared checks** are tagged `[SHARED]` and appear in both agents of a pair. Match them by tag and description within each pair, then apply:
 >
 > | Agent A | Agent B | Final Status |
 > |---------|---------|--------------|
 > | PASS | PASS | ✅ Pass (cross-verified) |
 > | FAIL | FAIL | ❌ Fail — merge both details |
-> | WARN | WARN | ⚠️ Needs attention — merge both details |
+> | WARN | WARN | ⚠️ Needs attention — merge details |
 > | FAIL | PASS | ⚠️ Disputed — show both perspectives |
 > | PASS | FAIL | ⚠️ Disputed — show both perspectives |
-> | FAIL | WARN | ❌ Fail — use the more severe detail |
-> | WARN | PASS | ⚠️ Needs attention — use the warning detail |
+> | FAIL | WARN | ❌ Fail — use more severe detail |
+> | WARN | PASS | ⚠️ Needs attention — use warning detail |
 > | SKIP (either) | any | — Not applicable |
 >
-> If a `[SHARED]` check appears in only one agent's report (the counterpart omitted it), include it with its reported status but flag it: "⚠️ single-agent only — counterpart did not report".
+> If a `[SHARED]` check appears in only one agent's report, include it but flag: "⚠️ single-agent only — counterpart did not report".
 >
-> **Solo checks** (untagged, covered by one agent only): include as-is with the agent's reported status.
+> **Solo checks** (untagged): include as-is with the agent's reported status.
 >
 > ## Output Format
->
-> Produce the final report exactly as shown:
 >
 > ---
 > # Handoff Audit — [Project Name]
 > **Stack:** [STACK]
 > **Audited:** [today's date]
+> **Agents:** 18 specialist agents | 9 sections
 >
 > ## 1. Code Quality
-> [all reconciled items with status icon and one-line detail if not passing — mark cross-verified items with "(×2)"]
+> [reconciled items — mark cross-verified passes with "(×2)"]
 >
 > ## 2. SEO
-> [all reconciled items]
 >
 > ## 3. Performance
-> [all reconciled items]
 >
 > ## 4. Accessibility
-> [all reconciled items]
 >
 > ## 5. Security
-> [all reconciled items]
+> ### Injection & XSS
+> ### Secrets & Data Exposure
+> ### Auth & Config
 >
 > ## 6. Mobile & Responsive
-> [all reconciled items]
 >
 > ## 7. Deployment Readiness
-> [all reconciled items]
 >
 > ---
 >
@@ -432,17 +523,17 @@ After all 14 agents have returned, spawn one final reconciler agent. Inject all 
 > — [X] not applicable
 >
 > ## Priority Fixes Before Handoff
-> [Ordered list: ❌ items first by severity, then ⚠️ items. Each item: section, what's wrong, file:line if known.]
+> [Ordered: ❌ by severity first, then ⚠️. Each item: section, what's wrong, file:line if known.]
 >
 > ## Disputed Findings (Manual Review Required)
-> [List any [SHARED] items where the two agents disagreed. For each: what Agent A found, what Agent B found, recommended next step.]
+> [Any [SHARED] items where the two agents disagreed — what each found, recommended next step.]
 > ---
 
 ---
 
 ## Orchestrator Notes
 
-- If a section is entirely not applicable (e.g. pure API project — no SEO needed), instruct agents to SKIP that section and note it.
-- If the project has no `package.json`, skip dependency/npm checks and mark those SKIP.
-- The 14 specialist agents and 1 reconciler = 15 Agent tool calls total. The 14 specialist calls happen in parallel. The reconciler runs after all 14 complete.
+- If a section is entirely not applicable (e.g. pure static site — no auth/JWT), instruct those agents to SKIP and note it.
+- If the project has no `package.json`, skip all dependency/npm checks and mark SKIP.
+- 18 specialist agents + 1 reconciler = 19 total Agent tool calls. All 18 specialists run in parallel. Reconciler runs after all 18 complete.
 - Do not commit anything. Do not suggest refactors. Report only.
