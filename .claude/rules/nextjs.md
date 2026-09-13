@@ -42,8 +42,10 @@ Do NOT create a component that already exists with a different name.
 
 ## Styling
 - Tailwind utility classes — mobile-first
+- Tailwind v4: config is CSS-first. The scale lives in an `@theme` block in globals.css,
+  not in tailwind.config.js. Check which version the project is on before editing either.
 - CSS Modules for component-scoped styles if Tailwind isn't enough
-- Never use arbitrary Tailwind values like w-[327px]
+- Never use arbitrary Tailwind values like w-[327px] — add the value to the theme scale instead
 - CSS custom properties defined in globals.css, consumed everywhere
 
 ## Performance
@@ -54,8 +56,18 @@ Do NOT create a component that already exists with a different name.
 
 ## TypeScript
 - Typed props interfaces on every component
-- Type page params: { params: { slug: string }, searchParams: { [key: string]: string } }
-- Use Next.js built-in types: NextPage, Metadata, generateMetadata
+- `params` and `searchParams` are Promises — await them. Sync access was deprecated in Next 15 and removed in Next 16.
+  ```tsx
+  type Props = {
+    params: Promise<{ slug: string }>
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  }
+  export default async function Page({ params }: Props) {
+    const { slug } = await params
+  }
+  ```
+- Same for `generateMetadata` and for `cookies()`, `headers()`, `draftMode()` — all async
+- Use Next.js built-in types: Metadata, generateMetadata (NextPage is Pages Router only)
 
 ## What "Done" Means
 - Page renders at 375 / 768 / 1440px

@@ -30,13 +30,12 @@ Do NOT create a component that already exists with a different name.
 
 ## JavaScript
 - Script goes in <script> tags inside .astro files or separate .ts files
-- GSAP: import via npm (import gsap from 'gsap') — no CDN in Astro
-- Wrap animations in document.addEventListener('astro:page-load') not DOMContentLoaded
-- Check element exists before animating: if (!el) return
+- GSAP setup, lifecycle and cleanup: see `.claude/rules/gsap.md` (loads with this file).
+  The short version: import via npm, never CDN, and which event you bind to depends on
+  whether <ClientRouter /> is in Layout.astro — check before writing any animation.
 
 ## Client Project Rules
-- No copy changes unless explicitly told
-- No section removals — improve only
+- Copy and section order: see the client-work rule in standards.md. It governs.
 - If a design decision conflicts with an existing pattern, flag it. Don't pick silently.
 
 ## What "Done" Means

@@ -24,8 +24,7 @@ Inherit its styles. Do NOT reinvent them.
 - Inline responsive adjustments if clearly missing
 
 ## What You Cannot Touch Without Being Asked
-- Copy (text content) — never rewrite, rephrase, or shorten
-- Section order — never remove or reorder sections
+- Copy and section order — see the client-work rule in standards.md. It governs; this file does not restate it.
 - Existing class names that are already styled
 - Any color value that is already defined in :root
 
@@ -34,8 +33,4 @@ This is likely a client site. Improve, never replace.
 If you think something should be removed, flag it — don't do it.
 
 ## Animation (Vanilla JS Projects)
-- GSAP via CDN only — no npm install
-- Wrap all GSAP in DOMContentLoaded
-- Check element exists before animating: if (!el) return
-- Place all animation code at the bottom of main.js in a marked section
-- Every motion needs intent. Nothing decorative.
+See `.claude/rules/gsap.md` — it loads alongside this file when you open the JS.

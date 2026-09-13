@@ -11,19 +11,36 @@ paths:
 ## Step 1: Read the Design First
 
 When a Figma URL is provided:
-1. Use `get_design_context` to read the full layer structure, spacing, typography, and component properties
-2. Use `get_screenshot` to visually confirm the layout and hierarchy
-3. Extract the `fileKey` and `nodeId` from the URL before calling any tool:
+1. Extract the `fileKey` and `nodeId` from the URL before calling any tool:
    - `figma.com/design/:fileKey/:name?node-id=:nodeId` — convert `-` to `:` in nodeId
+2. Use `get_variable_defs` **first** — it returns the design's actual variables
+   (colors, spacing, radii, type). This is the token source of truth. Reading hex
+   values off a screenshot or out of the design context instead is how hardcoded
+   values end up in the code.
+3. Use `get_design_context` to read layer structure, spacing, typography, and component properties
+4. Use `get_screenshot` to visually confirm the layout and hierarchy
 
 Do not write a single line of code until you understand the full layout, breakpoints present in the design, and component structure.
 
 ## Step 2: Read the Existing Codebase
 
 Before implementing:
-- Read the project's style system (CSS custom properties, Tailwind config, token file)
+- Read the project's style system (CSS custom properties, Tailwind `@theme`, token file)
+- Run `get_code_connect_map` — it maps Figma components to components that already
+  exist in this codebase. Check it before hand-matching layer names to files.
 - Identify existing components that match Figma layers — reuse before creating
 - Understand naming conventions already in use
+
+## Token Reconciliation
+
+With `get_variable_defs` output on one side and the project's tokens on the other,
+every Figma value falls into one of three buckets:
+
+| Case | Action |
+|---|---|
+| Figma variable maps cleanly to an existing project token | Use the project token |
+| Figma variable has no project equivalent | **Flag it.** Do not invent a token, do not hardcode the raw value |
+| Figma layer uses a raw value with no variable behind it | Flag it — usually a design-side mistake worth reporting back |
 
 ## Translation Workflow
 

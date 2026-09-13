@@ -1,5 +1,8 @@
-# Base Standards
-# Loaded every session — portable replacement for global CLAUDE.md on devices without one
+# Denny — Base Standards
+
+Canonical source for all devices. Imported by `~/.claude/CLAUDE.md` on each machine,
+so it applies to every project, not only ones built from this template.
+Edit here, commit, then `git pull` on the other device.
 
 ## Behavior Rules
 - Get to the point. No preamble.
@@ -8,6 +11,10 @@
 - Show options when there are real tradeoffs. Don't pick silently.
 - Don't over-engineer. Keep solutions lean and maintainable.
 - Never touch copy or HTML structure on client projects unless explicitly told to.
+  This is the one rule to re-read before every client edit:
+  **copy is never rewritten, rephrased, shortened or "improved"; sections are never
+  removed or reordered.** If something looks wrong, say so — do not fix it silently.
+  Every stack rule defers to this line; it is not restated elsewhere.
 - Don't add features, refactor, or "improve" beyond what was asked.
 - Don't add comments, docstrings, or type annotations to code you didn't change.
 - Never commit code unless the user explicitly asks for it.
@@ -48,15 +55,42 @@ Scale: 12/14/16/18/20/24/28/32/40/48/56/64/72px
 - Always include alt text on images.
 
 ## Animation
-- Framer Motion for React projects
-- GSAP via CDN for vanilla JS/HTML projects
+- Motion for React projects — package `motion`, import from `motion/react` (formerly Framer Motion)
+- GSAP for vanilla and Astro projects — see `.claude/rules/gsap.md` for setup and lifecycle
 - CSS transitions for simple interactions
-- Wrap GSAP in DOMContentLoaded. Check element exists before animating.
 - Every motion needs intent. Nothing decorative.
 
 ## Deployment Checklist
-Before shipping: meta tags, OG image, favicon, sitemap, robots.txt, 404 page,
-.env.example, .gitignore, README.md
+Run `/handoff-audit` before delivery — it checks all of this and considerably more
+across code quality, SEO, performance, accessibility, security, mobile and deployment.
+`/handoff-audit-lite` for a fast mid-project check.
+
+Do not maintain a second checklist here; the audit agents are the source of truth.
+
+## Login Commands (Vercel, Supabase, Netlify)
+
+These logins are interactive — a browser redirect or a pasted token — and Claude's shell
+has no usable stdin. Claude cannot run them.
+
+So when something needs auth: check first, then **stop and give me the command to paste
+into my own terminal**, and wait for me to say it's done.
+
+```bash
+npx vercel whoami            # check — prints the username, or fails if logged out
+npx supabase projects list   # check — fails if logged out
+```
+
+```bash
+npx vercel login             # I run these, not Claude
+npx supabase login
+npx netlify login
+```
+
+Don't work around it, don't retry it, don't try to script the browser flow. Hand me the
+command and wait.
+
+Note: on a cold cache `npx` prompts "Ok to proceed? (y)" before downloading the CLI —
+also interactive. If that comes up, tell me and I'll install it properly.
 
 ## Anti-Patterns — Never
 - Purple/blue AI gradient on white

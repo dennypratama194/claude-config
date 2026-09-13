@@ -8,7 +8,6 @@
       "Bash(git diff *)",
       "Bash(git log *)",
       "Bash(git add *)",
-      "Bash(git commit *)",
       "Bash(ls *)",
       "Bash(cat *)",
       "Bash(find *)",
@@ -17,24 +16,49 @@
       "Edit",
       "Glob",
       "Grep",
-      "Read(//c/Users/ADMIN/.claude/**)",
-      "Edit(/.claude/skills/frontend-design/**)"
+      "Bash(npx vercel whoami*)",
+      "Bash(npx supabase projects list*)",
+      "Bash(vercel whoami*)",
+      "Bash(supabase projects list*)"
     ],
     "deny": [
       "Bash(rm -rf *)",
+      "Bash(rm -fr *)",
+      "Bash(rm -r *)",
+      "Bash(*rm -rf*)",
+      "Bash(sh -c *)",
+      "Bash(bash -c *)",
       "Bash(curl *)",
       "Bash(wget *)",
       "Bash(git push --force*)",
+      "Bash(git push -f*)",
       "Bash(git reset --hard*)",
       "Bash(git checkout main)",
       "Bash(git checkout master)",
-      "Read(./.env)",
-      "Read(./.env.*)",
-      "Read(./secrets/*)"
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/secrets/**)",
+      "Read(**/*.pem)",
+      "Read(**/id_rsa*)"
     ],
     "additionalDirectories": [
       "C:\\Users\\ADMIN\\.claude",
       "c:\\Users\\ADMIN\\claude-config\\.claude\\rules"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/format.mjs\"",
+            "timeout": 30,
+            "statusMessage": "Formatting with Prettier..."
+          }
+        ]
+      }
     ]
   }
 }

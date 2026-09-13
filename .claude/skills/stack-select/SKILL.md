@@ -1,5 +1,7 @@
-# Skill: stack-select
-# Trigger: /stack-select
+---
+name: stack-select
+description: Clean up a project's CLAUDE.md after its stack has been chosen, removing the unused stack lines and style-reference entries left over from the template so the file reflects only the actual stack. Use when the user has just picked a stack for a new project, says the stack is decided, or asks to tidy up or finalise the CLAUDE.md template.
+---
 
 Clean up CLAUDE.md after a stack has been chosen. Removes all unused stack and style-reference entries so the file only reflects the actual project stack.
 

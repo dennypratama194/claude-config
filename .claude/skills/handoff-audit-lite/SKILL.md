@@ -1,7 +1,10 @@
-# Skill: handoff-audit-lite
-# Trigger: /handoff-audit-lite
+---
+name: handoff-audit-lite
+description: Fast single-pass pre-delivery audit covering code quality, SEO, performance, accessibility, security, and deployment readiness, run entirely in the main conversation with no subagents. Use for a quick mid-project sanity check, a spot check before a client review, or when the user wants a fast readiness checklist without waiting on a full audit. For the full cross-verified 18-agent audit before actual handoff, use handoff-audit instead.
+disallowed-tools: Write, Edit, NotebookEdit
+---
 
-Fast single-pass pre-delivery audit — no subagents, runs entirely in the main conversation. Use this for quick mid-project sanity checks. For the full 14-agent cross-checked audit before actual handoff, use `/handoff-audit`.
+Fast single-pass pre-delivery audit — no subagents, runs entirely in the main conversation. Use this for quick mid-project sanity checks. For the full 18-agent cross-verified audit before actual handoff, use `/handoff-audit`.
 
 Checks code quality, SEO, performance, accessibility, security, and deployment readiness. Outputs a structured checklist with status per item.
 

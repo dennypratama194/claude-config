@@ -21,6 +21,8 @@ paths:
 - Tailwind utility classes — no custom CSS unless absolutely unavoidable
 - Mobile-first: start with base styles, add md: lg: xl: breakpoints
 - Never use arbitrary Tailwind values like w-[327px] — use scale values
+- Tailwind v4: the scale is defined in an `@theme` block in CSS, not tailwind.config.js.
+  Read the project's CSS entry point before adding a token.
 
 ## State and Logic
 - Extract reusable logic into custom hooks in src/hooks/
@@ -33,6 +35,7 @@ paths:
 - Utilities: camelCase (formatDate, truncateText)
 
 ## Animation
-- Framer Motion for React projects
+- Motion for React projects — package `motion`, import from `motion/react`
+  (formerly Framer Motion; the `framer-motion` package still re-exports it, but new code uses `motion`)
 - CSS transitions for simple hover/show states
 - Never animate on initial load unless it adds real value

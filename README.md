@@ -10,23 +10,71 @@ Edit only `CLAUDE.md` per project. The rule files stay the same.
 ## Folder Structure
 
 ```
-your-project/
-  CLAUDE.md                   ← Edit this per project (client, stack, constraints)
-  CLAUDE.local.md             ← Personal overrides — gitignored, optional
-  .gitignore                  ← Already includes CLAUDE.local.md
+claude-config/
+  standards.md                ← Canonical base standards. NOT copied per project —
+                                 imported once per device (see Device Setup below)
+
+  CLAUDE.md                   ← Template. Copy + edit per project
+  .gitignore
 
   .claude/
     settings.json             ← Allow/deny permissions
-    settings.local.json       ← Personal permission overrides — gitignored, optional
 
     rules/
-      global-style.md         ← Always loaded (layout, type, color, anti-patterns)
       html-static.md          ← Loaded for *.html and *.css only
       astro-static.md         ← Loaded for *.astro only
       react-components.md     ← Loaded for *.tsx and *.jsx only
+      nextjs.md               ← Loaded for app/ and pages/ router files only
       wordpress.md            ← Loaded for *.php and WP files only
+      gsap.md                 ← Loaded for *.js and *.astro — GSAP setup + lifecycle
       figma-to-code.md        ← Loaded inside figma/ or design/ folders only
+
+    skills/
+      handoff-audit/          ← /handoff-audit — orchestrates the 19 agents below
+      handoff-audit-lite/     ← /handoff-audit-lite — fast single-pass audit
+      optimize-images/        ← /optimize-images — WebP + width/height + lazy loading
+      stack-select/           ← /stack-select — prune CLAUDE.md to the chosen stack
+
+    agents/
+      audit-*.md              ← 18 read-only inspectors (tools: Read, Grep, Glob)
+      audit-reconciler.md     ← consolidates their 18 reports into one
+
+    hooks/
+      format.mjs              ← PostToolUse: runs the project's own prettier after edits
 ```
+
+### The hook
+
+`format.mjs` runs after every Edit/Write, but **only in projects that already have
+prettier installed and configured**. On a client's hand-maintained codebase with no
+prettier setup it does nothing at all — reformatting those files would be exactly the
+structural churn the standards forbid. Opt a project in by adding prettier to
+`package.json` plus a prettier config.
+
+Frontend design guidance is **not** in this repo — Claude Code ships its own
+`frontend-design` skill. `standards.md` carries the constraints it does not cover
+(4px spacing scale, type scale, 1440 max width, breakpoints).
+
+---
+
+## Device Setup (once per machine)
+
+`standards.md` is the single source of truth for all your projects. Point each
+device's global config at it instead of copying it around:
+
+```bash
+git clone <this repo> ~/claude-config
+```
+
+Then in `~/.claude/CLAUDE.md`:
+
+```markdown
+@~/claude-config/standards.md
+```
+
+That's it. The standards now apply to **every** project on that machine, template
+or not. To change them: edit `standards.md`, commit, `git pull` on the other device.
+Never edit the standards in two places.
 
 ---
 
@@ -38,6 +86,7 @@ Copy .claude/ folder → your-project/.claude/
 Copy CLAUDE.md      → your-project/CLAUDE.md
 Copy .gitignore     → your-project/.gitignore (or merge with existing)
 ```
+Do **not** copy `standards.md` — it loads from your global config already.
 
 **Step 2 — Edit CLAUDE.md**
 Fill in the placeholders: project name, stack, constraints, style reference file.
@@ -55,9 +104,12 @@ Rules with a `paths:` block only load when Claude touches matching files.
 - Working on a `.html` file → `html-static.md` loads
 - Working on a `.astro` file → `astro-static.md` loads
 - Working on `.php` → `wordpress.md` loads
-- Working on anything → `global-style.md` always loads
+- Working on anything → `standards.md` always loads (via your global config)
 
 Claude never sees all rules at once. Context stays clean.
+
+Path-scoped rules load when Claude *reads a matching file*, not on every tool call,
+and they reload after `/compact`. Run `/context` to see which rules are actually loaded.
 
 ---
 
@@ -97,8 +149,11 @@ Only update rule files when your global standards change across all projects.
 
 ## Maintenance
 
-- `global-style.md` — update when your layout/type/color standards change
+- `standards.md` — update when your layout/type/color standards change (repo root).
+  It is also the single authority on the never-touch-client-copy rule; the stack rules
+  defer to it rather than restating it.
+- `.claude/agents/audit-*.md` — update when an audit check changes; the skill just orchestrates
 - `html-static.md` / `astro-static.md` — update when your static site workflow changes
 - `react-components.md` — update when your React conventions change
 - `wordpress.md` — update when your WP workflow changes
-- Add new rule files for new stacks (e.g. `nextjs.md`, `shopify.md`)
+- Add new rule files for new stacks (e.g. `shopify.md`, `svelte.md`)
