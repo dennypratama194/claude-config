@@ -11,7 +11,7 @@ The user's invocation authorizes edits needed for this implementation. It does n
 
 ## 1. Resolve the request
 
-- Require a Figma Design frame or layer URL. Extract its file key and node ID. Treat an optional second argument as the target route or file.
+- Require a Figma Design frame or layer URL. Treat an optional second argument as the target route or file.
 - Read `CLAUDE.md`, relevant scoped rules, `package.json`, the project token/style files, routing, nearby pages, shared layout, and `git status`.
 - Identify the framework, package manager, available validation scripts, dev command, target route/file, and pre-existing changes.
 - Preserve existing architecture and user changes. Do not replace the stack, initialize a new app inside an existing app, or modify files outside the implementation surface.
@@ -20,34 +20,17 @@ The user's invocation authorizes edits needed for this implementation. It does n
 
 ## 2. Build a design contract before coding
 
-Read the exact node through Figma MCP. Follow the repository's Figma-to-code rules, with these requirements:
+Explicitly read [the canonical Figma-to-code rule](../../rules/figma-to-code.md) before any design extraction or implementation, even when the target files do not match its path globs. If the file is missing or unreadable, stop and request it; do not reconstruct its policy from memory.
 
-1. Call `get_variable_defs` for the node.
-2. Call `get_design_context`; for a large node, use `get_metadata` to split it into meaningful sections and retrieve context section by section.
-3. Call `get_screenshot` for visual reference.
-4. Call `get_code_connect_map` and inspect the repository for matching components before creating new ones.
-5. Use `download_assets` for production images and SVGs. Reuse returned assets; do not substitute placeholders or install an icon library when Figma provides the asset.
-6. If the design contains motion, call `get_motion_context` and reuse the project's existing motion approach.
+Follow that rule for design extraction, token reconciliation, component reuse, assets, motion, responsive decisions, and implementation acceptance criteria. Do not maintain a second translation checklist here. Project-specific constraints still apply; surface conflicts for the user to resolve.
 
-Summarize a compact implementation contract in the working notes:
-
-- target route/file and page boundaries
-- section order and responsive frames present
-- typography, colors, spacing, radii, and reusable tokens
-- existing components to reuse and new components genuinely needed
-- assets and interactive states
-- unclear or conflicting decisions
-
-Project tokens and existing components win when they map cleanly. Flag genuine design-system conflicts rather than silently hardcoding around them.
-
-If the Figma source has no mobile/tablet intent and the repository does not provide an obvious established responsive pattern, ask before inventing one.
+Summarize the resulting implementation plan: target route, scope, existing/new components, assets, required viewports, and unresolved decisions. Resolve blocking decisions before editing.
 
 ## 3. Implement in one coordinated context
 
 - Keep implementation in the main context. Do not launch multiple coding agents against the same working tree.
-- Reuse the existing layout, header, footer, design tokens, components, data patterns, and utilities when appropriate.
 - Preserve supplied copy and section order unless the user explicitly requests content changes.
-- Use semantic HTML and accessible interaction states. Make the implementation responsive only within the approved design intent.
+- Implement the agreed plan under the canonical rule and project constraints.
 - Do not add dependencies without approval. Do not rewrite unrelated code or fix unrelated findings.
 - Work section by section, checking the rendered page as the implementation develops.
 
@@ -70,11 +53,12 @@ Start or reuse the local development server without killing unrelated processes.
 - local route URL
 - changed files
 - approved viewport widths
-- relevant design and project constraints
+- canonical rule path, implementation plan, and approved project-specific exceptions
+- previously retrieved design context and reference screenshots, where accessible
 
-The subagent is read-only. It must compare screenshots, not merely inspect CSS.
+The evaluator owns the comparison method, severity definitions, and pass criteria in `.claude/agents/figma-visual-qa.md`; do not duplicate them here. If the evaluator is unavailable, report visual QA as incomplete.
 
-Fix confirmed high- and medium-impact mismatches, then run the evaluator once more. Stop after two correction rounds even if minor differences remain. Never loop indefinitely. If browser capture is unavailable, mark visual QA as incomplete and give the user the exact manual check required.
+Run an initial evaluation. For NEEDS CORRECTION, fix confirmed in-scope findings and re-evaluate after each correction round, at most twice (three evaluations total). Stop on PASS or INCOMPLETE. After the limit, report remaining findings without claiming completion. Re-run relevant deterministic checks after the final code changes.
 
 ## 6. Finish
 
