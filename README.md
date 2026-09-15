@@ -30,6 +30,7 @@ claude-config/
       figma-to-code.md        ← Loaded inside figma/ or design/ folders only
 
     skills/
+      build-from-figma/       ← /build-from-figma — Figma → code → visual QA → audit
       handoff-audit/          ← /handoff-audit — orchestrates the 19 agents below
       handoff-audit-lite/     ← /handoff-audit-lite — fast single-pass audit
       optimize-images/        ← /optimize-images — WebP + width/height + lazy loading
@@ -38,6 +39,7 @@ claude-config/
     agents/
       audit-*.md              ← 18 read-only inspectors (tools: Read, Grep, Glob)
       audit-reconciler.md     ← consolidates their 18 reports into one
+      figma-visual-qa.md       ← read-only Figma vs local screenshot evaluator
 
     hooks/
       format.mjs              ← PostToolUse: runs the project's own prettier after edits
@@ -51,9 +53,28 @@ prettier setup it does nothing at all — reformatting those files would be exac
 structural churn the standards forbid. Opt a project in by adding prettier to
 `package.json` plus a prettier config.
 
-Frontend design guidance is **not** in this repo — Claude Code ships its own
+Frontend design guidance is **not** duplicated in this repo — Claude Code ships its own
 `frontend-design` skill. `standards.md` carries the constraints it does not cover
 (4px spacing scale, type scale, 1440 max width, breakpoints).
+
+### Build from Figma
+
+Install and authenticate Figma's official Claude Code plugin once:
+
+```bash
+claude plugin install figma@claude-plugins-official
+```
+
+Then run the workflow from the target project:
+
+```bash
+/build-from-figma <figma-frame-url> [target-route-or-file]
+```
+
+The skill reads the design and existing codebase, implements in one coordinated context,
+runs the project's existing checks, delegates screenshot comparison to the read-only
+`figma-visual-qa` agent, performs at most two correction rounds, then runs
+`/handoff-audit-lite`. It does not commit, push, deploy, or install dependencies.
 
 ---
 
