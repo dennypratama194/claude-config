@@ -6,7 +6,11 @@ paths:
 ---
 
 # Figma-to-Code Rules
-# Active when working in design/figma/mockup folders, or whenever a Figma URL is provided in the conversation.
+
+Canonical policy for translating Figma designs into this project's code.
+Path-based loading is limited to the globs above; a Figma URL alone is not a trigger.
+The `build-from-figma` skill explicitly reads this file regardless of target paths.
+For direct Figma tasks outside those paths, explicitly read this file first.
 
 ## Step 1: Read the Design First
 
@@ -20,6 +24,9 @@ When a Figma URL is provided:
 3. Use `get_design_context` to read layer structure, spacing, typography, and component properties
 4. Use `get_screenshot` to visually confirm the layout and hierarchy
 
+For oversized design context, use `get_metadata` to identify sections, then retrieve
+context for those sections without assuming the missing content.
+
 Do not write a single line of code until you understand the full layout, breakpoints present in the design, and component structure.
 
 ## Step 2: Read the Existing Codebase
@@ -30,6 +37,17 @@ Before implementing:
   exist in this codebase. Check it before hand-matching layer names to files.
 - Identify existing components that match Figma layers — reuse before creating
 - Understand naming conventions already in use
+
+## Assets and Motion
+
+- Reuse the supplied Figma assets; do not replace them with placeholders or a new icon library.
+- Use `download_assets` when available for production images and SVGs. Otherwise use
+  the asset sources returned by the connected Figma tools through permitted access.
+  Do not ship temporary or localhost asset URLs as production dependencies.
+- If the design specifies motion, use `get_motion_context` when available and adapt
+  it to the project's existing motion approach. If unavailable, flag the missing
+  motion evidence rather than inventing animation.
+- Missing required tool access is a blocker to report, not permission to bypass settings.
 
 ## Token Reconciliation
 
