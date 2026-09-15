@@ -27,7 +27,7 @@ claude-config/
       nextjs.md               ← Loaded for app/ and pages/ router files only
       wordpress.md            ← Loaded for *.php and WP files only
       gsap.md                 ← Loaded for *.js and *.astro — GSAP setup + lifecycle
-      figma-to-code.md        ← Loaded inside figma/ or design/ folders only
+      figma-to-code.md        ← Canonical Figma policy; explicitly read by build-from-figma
 
     skills/
       build-from-figma/       ← /build-from-figma — Figma → code → visual QA → audit
@@ -70,6 +70,11 @@ Then run the workflow from the target project:
 ```bash
 /build-from-figma <figma-frame-url> [target-route-or-file]
 ```
+
+Keep the responsibilities separate: `figma-to-code.md` owns translation policy,
+`build-from-figma` owns workflow order and retry limits, and `figma-visual-qa` owns
+visual comparison and verdicts. The skill explicitly reads the rule even for routes
+outside its path globs. Copy the rule and QA agent alongside the skill.
 
 The skill reads the design and existing codebase, implements in one coordinated context,
 runs the project's existing checks, delegates screenshot comparison to the read-only
