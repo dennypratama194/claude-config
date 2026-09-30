@@ -102,3 +102,8 @@ also interactive. If that comes up, tell me and I'll install it properly.
 - Desktop-only builds
 - Deploying without checking Core Web Vitals
 - Generic "AI-generated" aesthetic — every section should feel intentional
+
+
+## Dashboard and Application UI Design
+
+When a task involves a signed-in dashboard or application interface (such as a CRM, CMS, ERP, POS admin, internal tool, or client portal), read `dashboard-design.md` before making UI decisions and apply it to those screens. This guide does not apply to public landing pages, marketing websites, campaign pages, or other public-facing brand experiences. For products with both public and signed-in areas, apply it only to the signed-in application.
