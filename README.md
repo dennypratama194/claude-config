@@ -33,6 +33,7 @@ claude-config/
       build-from-figma/       ← /build-from-figma — Figma → code → visual QA → audit
       handoff-audit/          ← /handoff-audit — orchestrates the 19 agents below
       handoff-audit-lite/     ← /handoff-audit-lite — fast single-pass audit
+      performance-audit/     ← /performance-audit — audit / optimize / verify performance
       optimize-images/        ← /optimize-images — WebP + width/height + lazy loading
       stack-select/           ← /stack-select — prune CLAUDE.md to the chosen stack
 
